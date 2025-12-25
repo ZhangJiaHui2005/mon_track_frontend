@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import axios from "axios";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 
 enum CategoriesType {
   Income = "Income",
@@ -25,7 +25,7 @@ interface Category {
 
 export default function Categories() {
   const [categories, setCategories] = useState<Category[]>();
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [filterType, setFilterType] = useState<CategoriesType>(
     CategoriesType.Expense
   );
@@ -55,14 +55,19 @@ export default function Categories() {
     }
   };
 
-  useEffect(() => {
-    fetchCategories(filterType);
-  }, [filterType]);
+  useFocusEffect(
+    useCallback(() => {
+      fetchCategories(filterType);
+    }, [filterType])
+  );
 
   const renderItem = ({ item }: { item: Category }) => {
     return (
       <View
-        style={[styles.categoryItem, { width: isLargeScreen ? "50%" : "100%", alignSelf: "center" }]}
+        style={[
+          styles.categoryItem,
+          { width: isLargeScreen ? "50%" : "100%", alignSelf: "center" },
+        ]}
       >
         <View style={styles.iconCircle}>
           <Ionicons name="pricetag-outline" size={20} color="#555" />
@@ -129,8 +134,11 @@ export default function Categories() {
         />
       )}
 
-      <TouchableOpacity onPress={() => router.push('/(tabs)/settings/add_category')} style={styles.fab}>
-        <Ionicons name="add" color={'white'} size={20} />
+      <TouchableOpacity
+        onPress={() => router.push("/(tabs)/settings/add_category")}
+        style={styles.fab}
+      >
+        <Ionicons name="add" color={"white"} size={20} />
       </TouchableOpacity>
     </View>
   );
@@ -184,6 +192,6 @@ const styles = StyleSheet.create({
     color: "white",
     position: "absolute",
     bottom: 20,
-    right: 20
-  }
+    right: 20,
+  },
 });
